@@ -33,7 +33,8 @@ public class ExpenseTrackerController {
     }
     @GetMapping(value="/api/{user}/filter")
     public List<Expense> getUserExpensesFilterByMonthCategory(@PathVariable String user,
-                                                              @RequestParam(required = false) List<String> category, @RequestParam(required = false) List<String> month){
+                                                              @RequestParam(required = false) List<String> category,
+                                                              @RequestParam(required = false) List<String> month){
 
         return expenseService.findExpenseByUserMonthCategory(user,category,month);
     }
@@ -41,37 +42,19 @@ public class ExpenseTrackerController {
     @GetMapping(value="/api/{user}/stats/category")
     public  List<ExpenseSummaries.ByCategory> getStatsCategory(@PathVariable String user){
 
-        List<ExpenseSummaries.ByCategory> result = expenseService.getStatsCategory(user);
-
-        if (result.isEmpty()){
-            throw new IllegalArgumentException("User not found in database");
-        }
-
-        return result;
+        return expenseService.getStatsCategory(user);
     }
 
     @GetMapping(value="/api/{user}/stats/month")
     public  List<ExpenseSummaries.ByMonth> getStatsMonth(@PathVariable String user){
 
-        List<ExpenseSummaries.ByMonth> result = expenseService.getStatsMonth(user);
-
-        if (result.isEmpty()){
-            throw new IllegalArgumentException("User not found in database");
-        }
-
-        return result;
+        return expenseService.getStatsMonth(user);
     }
 
     @GetMapping(value="/api/{user}/stats/both")
     public  List<ExpenseSummaries.ByCategoryAndMonth> getStatsCategoryAndMonth(@PathVariable String user){
 
-        List<ExpenseSummaries.ByCategoryAndMonth> result = expenseService.getStatsCategoryAndMonth(user);
-
-        if (result.isEmpty()){
-            throw new IllegalArgumentException("User not found in database");
-        }
-
-        return result;
+        return expenseService.getStatsCategoryAndMonth(user);
     }
 
      /*
@@ -93,11 +76,7 @@ public class ExpenseTrackerController {
 
     @PutMapping(value = "/api/update/{id}")
     public void updateExpense(@Valid @RequestBody UpdateExpense newExpense, @PathVariable long id) {
-        //check if id is valid
-
-        Expense oldExpense = expenseService.findById(id).orElseThrow(() -> new IllegalArgumentException("Id not found"));
-
-        expenseService.updateExpense(newExpense, oldExpense);
+        expenseService.updateExpense(newExpense, id);
     }
 
     /*

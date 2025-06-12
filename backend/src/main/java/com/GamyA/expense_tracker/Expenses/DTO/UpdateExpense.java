@@ -6,6 +6,10 @@ import jakarta.validation.constraints.Pattern;
 
 public class UpdateExpense {
 
+    @Pattern(
+            regexp = "^[^/\\\\:*?\"<>|]*$",
+            message = "Must not contain any of the following characters: / \\ : * ? \" < > |"
+    )
     private String category;
 
     @Min(value = 0)

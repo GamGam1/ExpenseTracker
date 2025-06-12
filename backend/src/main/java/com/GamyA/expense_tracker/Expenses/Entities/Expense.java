@@ -23,6 +23,10 @@ public class Expense {
     )
     private String expenseName;
 
+    @Pattern(
+            regexp = "^[^/\\\\:*?\"<>|]*$",
+            message = "Must not contain any of the following characters: / \\ : * ? \" < > |"
+    )
     private String category;
 
     @NotNull(message = "amount is required")

@@ -51,15 +51,27 @@ public class ExpenseService {
 
 
     public List<ExpenseSummaries.ByCategory> getStatsCategory(String username){
-        return expenseRepository.aggSummaryCategory(username);
+        List<ExpenseSummaries.ByCategory>  result = expenseRepository.aggSummaryCategory(username);
+        if(result.isEmpty()){
+            throw new RuntimeException("no expenses found by the user");
+        }
+        return result;
     }
 
     public List<ExpenseSummaries.ByMonth> getStatsMonth(String username){
-        return expenseRepository.aggSummaryMonth(username);
+        List<ExpenseSummaries.ByMonth>  result = expenseRepository.aggSummaryMonth(username);
+        if(result.isEmpty()){
+            throw new RuntimeException("no expenses found by the user or filter");
+        }
+        return result;
     }
 
     public List<ExpenseSummaries.ByCategoryAndMonth> getStatsCategoryAndMonth(String username){
-        return expenseRepository.aggSummaryCategoryMonth(username);
+        List<ExpenseSummaries.ByCategoryAndMonth>  result = expenseRepository.aggSummaryCategoryMonth(username);
+        if(result.isEmpty()){
+            throw new RuntimeException("no expenses found by the user or filter");
+        }
+        return result;
     }
 
      /*
@@ -75,7 +87,9 @@ public class ExpenseService {
         FOR PUT METHOD
 
     */
-     public void updateExpense(UpdateExpense newExpense, Expense oldExpense){
+     public void updateExpense(UpdateExpense newExpense, long id){
+
+         Expense oldExpense = expenseRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Id not found"));
 
          if(newExpense.getAmount()  != null){
              oldExpense.setAmount(newExpense.getAmount());

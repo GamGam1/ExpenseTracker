@@ -29,26 +29,13 @@ public class ExpenseTrackerController {
 
     @GetMapping(value="/api/{user}")
     public List<Expense> getUserExpenses(@PathVariable String user){
-
-        List<Expense> result = expenseService.findExpenseByUsername(user);
-
-        if (result.isEmpty()){
-            throw new IllegalArgumentException("User not found in database");
-        }
-
-        return result;
+        return expenseService.findExpenseByUsername(user);
     }
     @GetMapping(value="/api/{user}/filter")
     public List<Expense> getUserExpensesFilterByMonthCategory(@PathVariable String user,
                                                               @RequestParam(required = false) List<String> category, @RequestParam(required = false) List<String> month){
 
-        List<Expense> result = expenseService.findExpenseByUserMonthCategory(user,category,month);
-
-        if (result.isEmpty()){
-            throw new IllegalArgumentException("User/Month/Category not found in database");
-        }
-
-        return result;
+        return expenseService.findExpenseByUserMonthCategory(user,category,month);
     }
 
     @GetMapping(value="/api/{user}/stats/category")

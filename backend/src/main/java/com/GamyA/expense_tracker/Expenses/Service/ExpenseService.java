@@ -34,11 +34,19 @@ public class ExpenseService {
     */
 
     public List<Expense> findExpenseByUsername(String username){
-        return expenseRepository.findByUsername(username);
+        List<Expense> result = expenseRepository.findByUsername(username);
+        if(result.isEmpty()){
+            throw new RuntimeException("no expenses found by the user");
+        }
+        return result;
     }
 
     public List<Expense> findExpenseByUserMonthCategory(String username, List<String> category, List<String> month){
-        return expenseRepository.findByUsernameCategoryMonth(username, category, month);
+        List<Expense>  result = expenseRepository.findByUsernameCategoryMonth(username, category, month);
+        if(result.isEmpty()){
+            throw new RuntimeException("no expenses found by the user or filter");
+        }
+        return result;
     }
 
 

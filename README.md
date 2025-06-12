@@ -1,5 +1,6 @@
 # Expense-Tracker
 
+# Backend
 A RESTful API built with Spring Boot for managing personal expense records. Supports creating, updating, deleting, and filtering expense data with aggregation features.
 
 ## Features
@@ -28,32 +29,29 @@ A RESTful API built with Spring Boot for managing personal expense records. Supp
   * Intellji (or ide of your choice, but instructions will assume you are using Intellji)
   * Database set up (I used Postgres, and instructions will assume you are too)  
 * Connecting to Database
-  * Go to the `application.properties` file, the lines provided are all that you need to use the project; you just need to fill them out
-  * If you are using PostgreSQL, the host will be localhost, and the port number will be 5432.
-  * For the database name, it will be the database that you are using.
-  * Username will be the username you assigned to the database, usually it is either postgres or your own username.
-    * Make sure to grant all privileges to this user   
-  * Password: If you created the database without a password, leave it blank; otherwise, input the password you assigned to the database.
+  * Make an `application.properties` file in the resource `backend/src/main/resources` folder, and copy the lines provided in the `application-properties-template.txt` file. Fill in the blanks. 
   *  Run the application to make sure it is all working
 
 ## Database Information
 
 ### Models
 The `Expense` Entity, the main database
-| Name         | Type    | Description          |
-|--------------|---------|----------------------|
-| `id`         | long    | unique id of the expense |
-| `username`   | String  | user to whom the expense belongs to  |
-| `amount`     | Double  | Total expense amount |
-| `month`      | String  | Date of the expense  |
-| `category`   | String  | Category of the expense  |
+| Name            | Type    | Description          |
+|-----------------|---------|----------------------|
+| `id`            | long    | unique id of the expense |
+| `username`      | String  | user to whom the expense belongs to  |
+| `amount`        | Double  | Total expense amount |
+| `month`         | String  | Date of the expense  |
+| `category`      | String  | Category of the expense  |
+| `expenseName`   | String  | Name of the expense  |
 
 * **Validation**
   * id: unique and non null
   * username: cannot be empty
   * amount: cannot be empty and must be nonnegative
   * month: cannot be empty and follows MMMM-yyyy format, i.e April-2025
-  * category: no constaints, if input doesn't specify a category will default to "no category"   
+  * category: no constaints, if input doesn't specify a category will default to "no category" and no window path characters  
+  * expenseName: Non Null and no window path characters  
 
 The `UpdateExpense` class, helps with data transferring when it comes to updating an expense
 | Name         | Type    | Description          |
@@ -61,11 +59,13 @@ The `UpdateExpense` class, helps with data transferring when it comes to updatin
 | `amount`     | Double  | The updated amount |
 | `month`      | String  | Updated date of the expense  |
 | `category`   | String  | Updated category of the expense  |
+| `expenseName`| String  | Updated name of the expense  |
 
 * **Validation**
   * amount: must be nonnegative
   * month: follows MMMM-yyyy format, i.e April-2025
   * category: no constaints
+  * expenseName: no window path characters
 
 
 ## API Endpoints 
@@ -93,13 +93,14 @@ The `UpdateExpense` class, helps with data transferring when it comes to updatin
 ### POST
 
 * `localhost:8080/api/save`
-  * saves a user inputted expense, expects a jsn body
+  * saves a user-inputted expense, expects a jsn body
   * ```
     {
       "username": "John Doe",
       "amount": 25.50,
       "month": "April-2025",
-      "category": "food"
+      "category": "food",
+     "expenseName": "in and out"
     }
     ```
 
@@ -111,7 +112,8 @@ The `UpdateExpense` class, helps with data transferring when it comes to updatin
     {
       "amount": 25.50,
       "month": "April-2025",
-      "category": "food"
+      "category": "food",
+      "expenseName": "in and out"
     }
   
     ```

@@ -1,5 +1,7 @@
 package com.GamyA.expense_tracker.Config;
 
+import com.GamyA.expense_tracker.Filter.JWTAuthFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

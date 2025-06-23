@@ -6,11 +6,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ExpenseRepository
         extends JpaRepository<Expense, Long> {
 
     List<Expense> findByUserId(Long userId);
+
+    Optional<Expense> findByUserIdAndId(Long userId, long Id);
 
     @Query("SELECT e FROM Expense e WHERE e.username = ?1 " +
             "AND (?2 IS NULL OR e.category IN ?2) AND (?3 IS NULL OR e.month IN ?3)")
@@ -31,6 +34,7 @@ public interface ExpenseRepository
     List<Expense> findByCategoryInAndUserId(List<String> category, Long userId);
 
     void deleteByCategoryInAndUserId(List<String> category, Long userId);
+
 
 
 }

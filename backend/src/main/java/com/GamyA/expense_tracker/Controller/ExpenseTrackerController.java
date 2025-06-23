@@ -4,6 +4,8 @@ import com.GamyA.expense_tracker.Entities.Expense;
 import com.GamyA.expense_tracker.DTO.ExpenseSummaries;
 import com.GamyA.expense_tracker.Service.ExpenseService;
 import com.GamyA.expense_tracker.DTO.UpdateExpense;
+import com.GamyA.expense_tracker.Service.JWTService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,10 +18,13 @@ import java.util.List;
 public class ExpenseTrackerController {
 
     private static ExpenseService expenseService;
+    private static JWTService jwtService;
 
     @Autowired
-    public ExpenseTrackerController(ExpenseService expenseService) {
+    public ExpenseTrackerController(ExpenseService expenseService, JWTService jwtService) {
         ExpenseTrackerController.expenseService = expenseService;
+        ExpenseTrackerController.jwtService = jwtService;
+
     }
 
     /*
@@ -29,32 +34,33 @@ public class ExpenseTrackerController {
     */
 
     @GetMapping(value="/userExpenses")
-    public List<Expense> getUserExpenses(){
-        Long userId = null;
+    public List<Expense> getUserExpenses(HttpServletRequest request){
+        Long userId = jwtService.getUserId(request);
         return expenseService.findExpenseByUsername(userId);
     }
     @GetMapping(value="/userExpenses/filter")
     public List<Expense> getUserExpensesFilterByMonthCategory(@RequestParam(required = false) List<String> category,
-                                                              @RequestParam(required = false) List<String> month){
-        Long userId = null;
+                                                              @RequestParam(required = false) List<String> month,
+                                                              HttpServletRequest request){
+        Long userId = jwtService.getUserId(request);
         return expenseService.findExpenseByUserMonthCategory(userId,category,month);
     }
 
     @GetMapping(value="/userExpenses/stats/category")
-    public  List<ExpenseSummaries.ByCategory> getStatsCategory(){
-        Long userId = null;
+    public  List<ExpenseSummaries.ByCategory> getStatsCategory(HttpServletRequest request){
+        Long userId = jwtService.getUserId(request);
         return expenseService.getStatsCategory(userId);
     }
 
     @GetMapping(value="/userExpenses/stats/month")
-    public  List<ExpenseSummaries.ByMonth> getStatsMonth(){
-        Long userId = null;
+    public  List<ExpenseSummaries.ByMonth> getStatsMonth(HttpServletRequest request){
+        Long userId = jwtService.getUserId(request);
         return expenseService.getStatsMonth(userId);
     }
 
     @GetMapping(value="/userExpenses/stats/both")
-    public  List<ExpenseSummaries.ByCategoryAndMonth> getStatsCategoryAndMonth(){
-        Long userId = null;
+    public  List<ExpenseSummaries.ByCategoryAndMonth> getStatsCategoryAndMonth(HttpServletRequest request){
+        Long userId = jwtService.getUserId(request);
         return expenseService.getStatsCategoryAndMonth(userId);
     }
 
@@ -65,9 +71,10 @@ public class ExpenseTrackerController {
     */
 
     @PostMapping(value = "/save")
-    public void saveExpense(@Valid @RequestBody Expense newExpense){
+    public void saveExpense(@Valid @RequestBody Expense newExpense, HttpServletRequest request){
         //need to add in userid
-        expenseService.saveExpense(newExpense);
+        Long userId = jwtService.getUserId(request);
+        expenseService.saveExpense(newExpense, userId);
     }
 
      /*
@@ -77,9 +84,10 @@ public class ExpenseTrackerController {
     */
 
     @PutMapping(value = "/update/{id}")
-    public void updateExpense(@Valid @RequestBody UpdateExpense newExpense, @PathVariable long id) {
+    public void updateExpense(@Valid @RequestBody UpdateExpense newExpense, @PathVariable long id, HttpServletRequest request) {
         //check if the expense belongs to the user
-        expenseService.updateExpense(newExpense, id);
+        Long userId = jwtService.getUserId(request);
+        expenseService.updateExpense(newExpense, id, userId);
     }
 
     /*
@@ -89,13 +97,14 @@ public class ExpenseTrackerController {
     */
 
     @DeleteMapping(value = "/deleteID/{id}")
-    public void deleteExpense(@PathVariable long id){
-        expenseService.deleteExpense(id);
+    public void deleteExpense(@PathVariable long id, HttpServletRequest request){
+        Long userId = jwtService.getUserId(request);
+        expenseService.deleteExpense(id, userId);
     }
 
     @DeleteMapping(value = "/deleteCategory")
-    public void deleteExpenseByCategory(@RequestParam List<String> category){
-        Long userId = null;
+    public void deleteExpenseByCategory(@RequestParam List<String> category, HttpServletRequest request){
+        Long userId = jwtService.getUserId(request);
         expenseService.deleteByCategoryAndUser(category,userId);
     }
 

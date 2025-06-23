@@ -79,7 +79,9 @@ public class ExpenseService {
         FOR POST METHOD
 
     */
-     public void saveExpense(Expense newExpense){
+     public void saveExpense(Expense newExpense, Long userId){
+         newExpense.setUserId(userId);
+
          expenseRepository.save(newExpense);
      }
      /*
@@ -87,9 +89,9 @@ public class ExpenseService {
         FOR PUT METHOD
 
     */
-     public void updateExpense(UpdateExpense newExpense, long id){
+     public void updateExpense(UpdateExpense newExpense, long id, Long userId){
 
-         Expense oldExpense = expenseRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Id not found"));
+         Expense oldExpense = expenseRepository.findByUserIdAndId(userId,id).orElseThrow(() -> new IllegalArgumentException("Expense not found"));
 
          if(newExpense.getAmount()  != null){
              oldExpense.setAmount(newExpense.getAmount());
@@ -113,8 +115,8 @@ public class ExpenseService {
     */
 
     @Transactional
-    public void deleteExpense(long id){
-        Expense expense = expenseRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found"));
+    public void deleteExpense(long id, Long userId){
+        Expense expense = expenseRepository.findByUserIdAndId(userId,id).orElseThrow(() -> new RuntimeException("Not found"));
         expenseRepository.delete(expense);
     }
 

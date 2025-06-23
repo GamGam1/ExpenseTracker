@@ -1,7 +1,6 @@
 package com.GamyA.expense_tracker.Entities;
 
 import jakarta.persistence.*;
-import jdk.jfr.Enabled;
 
 @Entity
 public class UserInfo {

@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -43,13 +44,21 @@ public class JWTService {
     public boolean isTokenValid(String token, UserDetails userDetails) {
         return extractUsername(token).equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
-    //fix to give id
-    private Claims getClaims(String token){
-        return Jwts.parserBuilder()
+
+    public Long getUserId(HttpServletRequest request){
+        String authHeader = request.getHeader("Authorization");
+        if ((authHeader == null) && !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("no valid token found");
+        }
+
+        String token = authHeader.substring(7); // remove "Bearer "
+
+        Claims claims = Jwts.parserBuilder()
                 .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+        return claims.get("userId", Long.class);
     }
 
     private boolean isTokenExpired(String token) {

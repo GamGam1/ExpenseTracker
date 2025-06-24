@@ -91,7 +91,7 @@ public class ExpenseService {
     */
      public void updateExpense(UpdateExpense newExpense, long id, Long userId){
 
-         Expense oldExpense = expenseRepository.findByUserIdAndId(userId,id).orElseThrow(() -> new IllegalArgumentException("Expense not found"));
+         Expense oldExpense = expenseRepository.findByUserIdAndExpenseId(userId,id).orElseThrow(() -> new IllegalArgumentException("Expense not found"));
 
          if(newExpense.getAmount()  != null){
              oldExpense.setAmount(newExpense.getAmount());
@@ -116,7 +116,7 @@ public class ExpenseService {
 
     @Transactional
     public void deleteExpense(long id, Long userId){
-        Expense expense = expenseRepository.findByUserIdAndId(userId,id).orElseThrow(() -> new RuntimeException("Not found"));
+        Expense expense = expenseRepository.findByUserIdAndExpenseId(userId,id).orElseThrow(() -> new RuntimeException("Not found"));
         expenseRepository.delete(expense);
     }
 

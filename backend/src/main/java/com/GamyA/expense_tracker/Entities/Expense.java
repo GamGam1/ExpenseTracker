@@ -11,9 +11,9 @@ public class Expense {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long Id;
+    private long expenseId;
 
-    @Positive(message = "enter valid Id")
+    @Positive(message = "enter valid expenseId")
     private Long userId;
 
     @NotBlank(message = "You must enter a name for the expense")
@@ -53,8 +53,8 @@ public class Expense {
         this.expenseName = expenseName;
     }
 
-    public long getId() {
-        return Id;
+    public long getExpenseId() {
+        return expenseId;
     }
 
     public Long getUserId() {

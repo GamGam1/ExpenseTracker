@@ -1,4 +1,4 @@
-package com.GamyA.expense_tracker.Expenses.Entities;
+package com.GamyA.expense_tracker.Entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -11,10 +11,10 @@ public class Expense {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long Id;
+    private long expenseId;
 
-    @NotBlank(message = "You must enter a username")
-    private String username;
+    @Positive(message = "enter valid expenseId")
+    private Long userId;
 
     @NotBlank(message = "You must enter a name for the expense")
     @Pattern(
@@ -42,8 +42,7 @@ public class Expense {
     }
 
     @Autowired
-    public Expense(String username, String category, Double amount, String month, String expenseName){
-        this.username = username;
+    public Expense(String category, Double amount, String month, String expenseName){
         if (category == null){
             this.category = "General";
         }else{
@@ -54,12 +53,12 @@ public class Expense {
         this.expenseName = expenseName;
     }
 
-    public long getId() {
-        return Id;
+    public long getExpenseId() {
+        return expenseId;
     }
 
-    public String getUsername() {
-        return username;
+    public Long getUserId() {
+        return userId;
     }
 
     public String getCategory() {
@@ -74,8 +73,8 @@ public class Expense {
         return month;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public void setCategory(String category) {

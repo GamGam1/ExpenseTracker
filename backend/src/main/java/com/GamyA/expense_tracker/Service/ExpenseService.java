@@ -1,9 +1,9 @@
-package com.GamyA.expense_tracker.Expenses.Service;
+package com.GamyA.expense_tracker.Service;
 
-import com.GamyA.expense_tracker.Expenses.Entities.Expense;
-import com.GamyA.expense_tracker.Expenses.DTO.ExpenseSummaries;
-import com.GamyA.expense_tracker.Expenses.Repository.ExpenseRepository;
-import com.GamyA.expense_tracker.Expenses.DTO.UpdateExpense;
+import com.GamyA.expense_tracker.Entities.Expense;
+import com.GamyA.expense_tracker.DTO.ExpenseSummaries;
+import com.GamyA.expense_tracker.Repository.ExpenseRepository;
+import com.GamyA.expense_tracker.DTO.UpdateExpense;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,16 +33,16 @@ public class ExpenseService {
 
     */
 
-    public List<Expense> findExpenseByUsername(String username){
-        List<Expense> result = expenseRepository.findByUsername(username);
+    public List<Expense> findExpenseByUsername(Long userId){
+        List<Expense> result = expenseRepository.findByUserId(userId);
         if(result.isEmpty()){
             throw new RuntimeException("no expenses found by the user");
         }
         return result;
     }
 
-    public List<Expense> findExpenseByUserMonthCategory(String username, List<String> category, List<String> month){
-        List<Expense>  result = expenseRepository.findByUsernameCategoryMonth(username, category, month);
+    public List<Expense> findExpenseByUserMonthCategory(Long userId, List<String> category, List<String> month){
+        List<Expense>  result = expenseRepository.findByUsernameCategoryMonth(userId, category, month);
         if(result.isEmpty()){
             throw new RuntimeException("no expenses found by the user or filter");
         }
@@ -50,24 +50,24 @@ public class ExpenseService {
     }
 
 
-    public List<ExpenseSummaries.ByCategory> getStatsCategory(String username){
-        List<ExpenseSummaries.ByCategory>  result = expenseRepository.aggSummaryCategory(username);
+    public List<ExpenseSummaries.ByCategory> getStatsCategory(Long userId){
+        List<ExpenseSummaries.ByCategory>  result = expenseRepository.aggSummaryCategory(userId);
         if(result.isEmpty()){
             throw new RuntimeException("no expenses found by the user");
         }
         return result;
     }
 
-    public List<ExpenseSummaries.ByMonth> getStatsMonth(String username){
-        List<ExpenseSummaries.ByMonth>  result = expenseRepository.aggSummaryMonth(username);
+    public List<ExpenseSummaries.ByMonth> getStatsMonth(Long userId){
+        List<ExpenseSummaries.ByMonth>  result = expenseRepository.aggSummaryMonth(userId);
         if(result.isEmpty()){
             throw new RuntimeException("no expenses found by the user or filter");
         }
         return result;
     }
 
-    public List<ExpenseSummaries.ByCategoryAndMonth> getStatsCategoryAndMonth(String username){
-        List<ExpenseSummaries.ByCategoryAndMonth>  result = expenseRepository.aggSummaryCategoryMonth(username);
+    public List<ExpenseSummaries.ByCategoryAndMonth> getStatsCategoryAndMonth(Long userId){
+        List<ExpenseSummaries.ByCategoryAndMonth>  result = expenseRepository.aggSummaryCategoryMonth(userId);
         if(result.isEmpty()){
             throw new RuntimeException("no expenses found by the user or filter");
         }
@@ -79,7 +79,9 @@ public class ExpenseService {
         FOR POST METHOD
 
     */
-     public void saveExpense(Expense newExpense){
+     public void saveExpense(Expense newExpense, Long userId){
+         newExpense.setUserId(userId);
+
          expenseRepository.save(newExpense);
      }
      /*
@@ -87,9 +89,9 @@ public class ExpenseService {
         FOR PUT METHOD
 
     */
-     public void updateExpense(UpdateExpense newExpense, long id){
+     public void updateExpense(UpdateExpense newExpense, long id, Long userId){
 
-         Expense oldExpense = expenseRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Id not found"));
+         Expense oldExpense = expenseRepository.findByUserIdAndExpenseId(userId,id).orElseThrow(() -> new IllegalArgumentException("Expense not found"));
 
          if(newExpense.getAmount()  != null){
              oldExpense.setAmount(newExpense.getAmount());
@@ -113,24 +115,20 @@ public class ExpenseService {
     */
 
     @Transactional
-    public void deleteExpense(long id){
-        Expense expense = expenseRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found"));
+    public void deleteExpense(long id, Long userId){
+        Expense expense = expenseRepository.findByUserIdAndExpenseId(userId,id).orElseThrow(() -> new RuntimeException("Not found"));
         expenseRepository.delete(expense);
     }
 
     @Transactional
-    public void deleteByCategoryAndUser(List<String> Category, String Username){
-        List<Expense> allExpenses = expenseRepository.findByCategoryInAndUsername(Category, Username);
+    public void deleteByCategoryAndUser(List<String> Category, Long userId){
+        List<Expense> allExpenses = expenseRepository.findByCategoryInAndUserId(Category, userId);
 
         if(allExpenses.isEmpty()){
             throw new IllegalArgumentException(" Either category or username is not found in database");
         }else{
-            expenseRepository.deleteByCategoryInAndUsername(Category, Username);
+            expenseRepository.deleteByCategoryInAndUserId(Category, userId);
         }
-    }
-
-    public Optional<Expense> findById(long id){
-        return expenseRepository.findById(id);
     }
 
 

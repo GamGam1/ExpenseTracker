@@ -1,4 +1,4 @@
-package com.GamyA.expense_tracker.Expenses.DTO;
+package com.GamyA.expense_tracker.DTO;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;

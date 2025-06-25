@@ -1,4 +1,4 @@
-package com.GamyA.expense_tracker.Expenses.DTO;
+package com.GamyA.expense_tracker.DTO;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

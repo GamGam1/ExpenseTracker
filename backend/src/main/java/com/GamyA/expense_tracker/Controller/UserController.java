@@ -26,7 +26,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/login")
-    public String userLogIn(UserLogIn userLogIn){
+    public String userLogIn(@RequestBody UserLogIn userLogIn){
         return userService.AuthAndGetToken(userLogIn);
     }
 }

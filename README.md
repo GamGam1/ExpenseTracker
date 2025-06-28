@@ -14,6 +14,12 @@ A RESTful API built with Spring Boot for managing personal expense records. Supp
 
 * JSON-based API requests and responses
 
+* User registration and login with JWT authentication
+
+* Secure endpoints using Spring Security
+
+* User data isolation (users only access their own data)
+
 ## Tech Stack
 * Java 24
 * Spring Boot
@@ -21,6 +27,7 @@ A RESTful API built with Spring Boot for managing personal expense records. Supp
 * Postgres SQL
 * Maven
 * Postman (API Testing)
+* Spring Security + JWT
 
 ## Starting Guide
 * PreReqs
@@ -29,8 +36,16 @@ A RESTful API built with Spring Boot for managing personal expense records. Supp
   * Intellji (or ide of your choice, but instructions will assume you are using Intellji)
   * Database set up (I used Postgres, and instructions will assume you are too)  
 * Connecting to Database
-  * Make an `application.properties` file in the resource `backend/src/main/resources` folder, and copy the lines provided in the `application-properties-template.txt` file. Fill in the blanks. 
-  *  Run the application to make sure it is all working
+  * Make an `application.properties` file in the resource `backend/src/main/resources` folder, and copy the lines provided in the `template-AppProp.txt` file which is located in the `template` folder. Fill in the blanks.
+  * Run the application to make sure it is all working
+
+## Security
+
+- Passwords are securely hashed using BCrypt.
+- JWTs are used to authenticate and authorize users.
+- Only authenticated users can access protected endpoints.
+- Users can only interact with their own data.
+- Admin role can be extended to manage users or access analytics (planned).
 
 ## Database Information
 
@@ -39,7 +54,7 @@ The `Expense` Entity, the main database
 | Name            | Type    | Description          |
 |-----------------|---------|----------------------|
 | `id`            | long    | unique id of the expense |
-| `username`      | String  | user to whom the expense belongs to  |
+| `userId`      | long  | id of the user to whom the expense belongs to  |
 | `amount`        | Double  | Total expense amount |
 | `month`         | String  | Date of the expense  |
 | `category`      | String  | Category of the expense  |
@@ -67,36 +82,63 @@ The `UpdateExpense` class, helps with data transferring when it comes to updatin
   * category: no constaints
   * expenseName: no window path characters
 
+The `UserInfo` class is the database that stores users.
+
+| Name       | Type   | Description                             |
+|------------|--------|-----------------------------------------|
+| `username` | String | username of the user                    |
+| `password` | String | password of the user (encrypted)        |
+| `role`     | String | role of the user, "USER" is the default |
+| `userId`   | Long   | Id of user                              |
+
+
+* **Validation**
+  * username: unique
+
 
 ## API Endpoints 
 
+### AUTH
+* `localhost:8080/api/auth/register`
+  * given a `username` and `password` in the json body it registers that user to the `UserInfo` database.
+  * ```
+      {
+      "username": "jonh doe",
+      "password": "password123!"
+      }
+* `localhost:8080/api/auth/login`
+  * given a `username` and `password` in the json body, it checks if the credentials are correct. If they are correct it returns a JWT token that is needed to use the rest of the endpoints.
+  * ```
+      {
+      "username": "jonh doe",
+      "password": "password123!"
+      }
+
+* Note: for the following end points they expect a valid JWT Token so the `userId` can be extracted.
+
+
 ### GET
 
-* `localhost:8080/api/{user}`
+* `localhost:8080/api/expenses/userExpenses`
   * gets all expenses of the user
-  * will throw an error if `user` is not in the databasae
-* `localhost:8080/api/{user}/filter?category=...&month=&...&category=...&month=&...`
+* `localhost:8080/api/expenses/userExpenses/filter?category=...&month=&...&category=...&month=&...`
   * This will return expenses of the user fitlering out `month` and `category`
   * note for multiple filters of a certain attribute you need to do separate calls as shown above
   * note the api endpoint does not expect either `category` or `month` to be in the url
-  * will throw an error is `user` is not in the databasae   
-* `localhost:8080/api/{user}/stats/category`
-  * gets an aggregated total and average of `amount` for each `category` that the user has created
-  * will throw an error is `user` is not in the databasae   
-* `localhost:8080/api/{user}/stats/month`
-  * gets an aggregated total and average of `amount` for each `month` that the user has created
-  * will throw an error is `user` is not in the databasae   
-* `localhost:8080/api/{user}/stats/both`
-  *  gets an aggregated total and average of `amount` for each `month` and `category` that the user has created
-  *  will throw an error is `user` is not in the databasae   
+  
+* `localhost:8080/api/expenses/userExpenses/stats/category`
+  * gets an aggregated total and average of `amount` for each `category` that the user has created 
+* `localhost:8080/api/expenses/userExpenses/stats/month`
+  * gets an aggregated total and average of `amount` for each `month` that the user has created 
+* `localhost:8080/api/expenses/userExpenses/stats/both`
+  *  gets an aggregated total and average of `amount` for each `month` and `category` that the user has created 
 
 ### POST
 
-* `localhost:8080/api/save`
+* `localhost:8080/api/expenses/save`
   * saves a user-inputted expense, expects a jsn body
   * ```
     {
-      "username": "John Doe",
       "amount": 25.50,
       "month": "April-2025",
       "category": "food",
@@ -106,7 +148,7 @@ The `UpdateExpense` class, helps with data transferring when it comes to updatin
 
 ### PUT
 
-* `localhost:8080/api/update/{id}`
+* `localhost:8080/api/expeness/update/{id}`
   * given an `id` and an `UpdatedExpense` it updates either `month`, `category`, `amount`, or all 3 depending on the json body
   * ```
     {
@@ -122,20 +164,20 @@ The `UpdateExpense` class, helps with data transferring when it comes to updatin
 
 ### DELETE
 
-* `localhost:8080/api/deleteID/{id}`
+* `localhost:8080/api/expenses/deleteID/{id}`
   * given an `id` it will delete that expense from the database
   * will throw an error if `id` is not found in database   
-* `localhost:8080/api/deleteCategory/{user}?category=...&category=...`
-  * given a `username` and a list of `category` values it will delete all expenses with `category` values that are in the list
+* `localhost:8080/api/expenses/deleteCategory?category=...&category=...`
+  * given a list of `category` values it will delete all expenses with `category` values that are in the list
   * will throw an error if list is not provided or `username` or `cateogry` not in the database   
 
 ## Future Improvements
 
 ### Backend
 
-*  add User authentication (JWT)
+*  add role actions
 *  recurring expenses
 
 ### Frontend
 
-* adding in frontend intergration via react or other
+* adding in frontend integration via react or other

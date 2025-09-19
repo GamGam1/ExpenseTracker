@@ -63,10 +63,10 @@ The `Expense` Entity, the main database
 * **Validation**
   * id: unique and non null
   * username: cannot be empty
-  * amount: cannot be empty and must be nonnegative
+  * amount: cannot be empty and must be non-negative
   * month: cannot be empty and follows MMMM-yyyy format, i.e April-2025
-  * category: no constaints, if input doesn't specify a category will default to "no category" and no window path characters  
-  * expenseName: Non Null and no window path characters  
+  * category: no constraints, if input doesn't specify a category will default to "no category" and no window path characters  
+  * expenseName: Non-Null and no window path characters  
 
 The `UpdateExpense` class, helps with data transferring when it comes to updating an expense
 | Name         | Type    | Description          |
@@ -77,9 +77,9 @@ The `UpdateExpense` class, helps with data transferring when it comes to updatin
 | `expenseName`| String  | Updated name of the expense  |
 
 * **Validation**
-  * amount: must be nonnegative
+  * amount: must be non-negative
   * month: follows MMMM-yyyy format, i.e April-2025
-  * category: no constaints
+  * category: no constraints
   * expenseName: no window path characters
 
 The `UserInfo` class is the database that stores users.
@@ -122,7 +122,7 @@ The `UserInfo` class is the database that stores users.
 * `localhost:8080/api/expenses/userExpenses`
   * gets all expenses of the user
 * `localhost:8080/api/expenses/userExpenses/filter?category=...&month=&...&category=...&month=&...`
-  * This will return expenses of the user fitlering out `month` and `category`
+  * This will return expenses of the user filtering out `month` and `category`
   * note for multiple filters of a certain attribute you need to do separate calls as shown above
   * note the api endpoint does not expect either `category` or `month` to be in the url
   
